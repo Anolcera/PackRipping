@@ -5,9 +5,5 @@ import org.koin.dsl.KoinAppDeclaration
 
 internal fun startCoreKoin(extra: KoinAppDeclaration? = null) = startKoin {
     extra?.invoke(this)
-    modules(networkModule)
-}
-
-fun initKoin() {
-    startCoreKoin()
+    modules(networkModule, databaseModule)
 }

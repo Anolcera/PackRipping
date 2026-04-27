@@ -6,5 +6,6 @@ import org.koin.android.ext.koin.androidContext
 fun initKoin(application: Application) {
     startCoreKoin {
         androidContext(application)
+        modules(androidPlatformModule)
     }
 }
