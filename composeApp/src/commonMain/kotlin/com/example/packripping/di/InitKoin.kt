@@ -5,5 +5,12 @@ import org.koin.dsl.KoinAppDeclaration
 
 internal fun startCoreKoin(extra: KoinAppDeclaration? = null) = startKoin {
     extra?.invoke(this)
-    modules(networkModule, databaseModule)
+    modules(
+        commonModule,
+        networkModule,
+        databaseModule,
+        repositoriesModule,
+        useCasesModule,
+        viewModelsModule,
+    )
 }

@@ -1,39 +1,87 @@
 package com.example.packripping
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
-
-import packripping.composeapp.generated.resources.Res
-import packripping.composeapp.generated.resources.compose_multiplatform
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
+import coil3.ImageLoader
+import coil3.compose.setSingletonImageLoaderFactory
+import coil3.disk.DiskCache
+import coil3.memory.MemoryCache
+import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.crossfade
+import coil3.util.DebugLogger
+import com.example.packripping.core.common.isDebug
+import com.example.packripping.core.ui.imageCacheDirectory
+import com.example.packripping.core.ui.theme.PackRippingTheme
+import io.ktor.client.HttpClient
+import org.koin.compose.koinInject
+import com.example.packripping.features.packs.PacksRoute
+import com.example.packripping.features.pulls.PullsRoute
+import com.example.packripping.features.showroom.ShowroomRoute
+import com.example.packripping.navigation.AppNavigationBar
+import com.example.packripping.navigation.AppNavigator
+import com.example.packripping.navigation.PacksHome
+import com.example.packripping.navigation.PullsTab
+import com.example.packripping.navigation.ShowroomTab
+import com.example.packripping.navigation.toTopLevelDestination
 
 @Composable
-@Preview
 fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
+    PackRippingTheme {
+        val httpClient = koinInject<HttpClient>()
+        setSingletonImageLoaderFactory { context ->
+            ImageLoader.Builder(context)
+                .components { add(KtorNetworkFetcherFactory(httpClient = { httpClient })) }
+                .memoryCache {
+                    MemoryCache.Builder()
+                        .maxSizePercent(context, 0.25)
+                        .build()
+                }
+                .diskCache {
+                    DiskCache.Builder()
+                        .directory(imageCacheDirectory(context))
+                        .maxSizeBytes(64L * 1024 * 1024)
+                        .build()
+                }
+                .crossfade(true)
+                .apply { if (isDebug) logger(DebugLogger()) }
+                .build()
+        }
+
+        val backStack = remember { mutableStateListOf<Any>(PacksHome) }
+        val navigator = remember { AppNavigator(backStack) }
+        val currentTopLevel = navigator.currentRoute.toTopLevelDestination()
+
+        Scaffold(
+            bottomBar = {
+                if (currentTopLevel != null) {
+                    AppNavigationBar(
+                        selected = currentTopLevel,
+                        onNavigate = { destination ->
+                            if (destination != currentTopLevel) {
+                                navigator.navigateToTopLevel(destination)
+                            }
+                        },
+                    )
+                }
+            },
+        ) { padding ->
+            NavDisplay(
+                backStack = backStack,
+                onBack = { navigator.goBack() },
+                modifier = Modifier.fillMaxSize().padding(padding),
+                entryProvider = entryProvider {
+                    entry<PacksHome> { PacksRoute(navigator) }
+                    entry<PullsTab> { PullsRoute() }
+                    entry<ShowroomTab> { ShowroomRoute() }
+                },
+            )
         }
     }
 }
