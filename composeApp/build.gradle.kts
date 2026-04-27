@@ -1,5 +1,6 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -9,6 +10,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    alias(libs.plugins.buildKonfig)
 }
 
 kotlin {
@@ -33,6 +35,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.koin.android)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -89,6 +92,10 @@ android {
     namespace = "com.example.packripping"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.example.packripping"
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -114,6 +121,26 @@ android {
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+
+buildkonfig {
+    packageName = "com.example.packripping"
+    objectName = "AppConfig"
+
+    val localProps = Properties().apply {
+        rootProject.file("local.properties").takeIf { it.exists() }
+            ?.inputStream()
+            ?.use(::load)
+    }
+    //elvis operator here, because when I upload this code
+    //because BASE_URL is not tracked, you won't have it and testing will fail
+    //hardcoding here is only for the purpose of you testing
+    //should be removed in real workspace
+    val baseUrl = localProps.getProperty("BASE_URL") ?: "https://api.letsgooo.com"
+
+    defaultConfigs {
+        buildConfigField(Type.STRING, "BASE_URL", baseUrl)
+    }
 }
 
 dependencies {
