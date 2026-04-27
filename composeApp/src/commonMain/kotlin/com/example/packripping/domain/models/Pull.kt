@@ -1,7 +1,9 @@
 package com.example.packripping.domain.models
 
+import androidx.compose.runtime.Immutable
 import kotlin.time.Instant
 
+@Immutable
 data class Pull(
     val id: String,
     val card: Card,

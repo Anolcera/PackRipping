@@ -45,7 +45,7 @@ fun AppNavigationBar(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun AppNavigationBarPreview() {
     PackRippingTheme {

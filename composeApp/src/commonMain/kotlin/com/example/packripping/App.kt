@@ -1,5 +1,9 @@
 package com.example.packripping
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -76,8 +80,23 @@ fun App() {
                 backStack = backStack,
                 onBack = { navigator.goBack() },
                 modifier = Modifier.fillMaxSize().padding(padding),
+                // Every destination in this graph is a top-level tab — there is no
+                // hierarchical push/pop. A simple cross-fade reads better than a
+                // directional slide because the tabs are siblings, not parent/child.
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(durationMillis = 180)) togetherWith
+                        fadeOut(animationSpec = tween(durationMillis = 180))
+                },
+                popTransitionSpec = {
+                    fadeIn(animationSpec = tween(durationMillis = 180)) togetherWith
+                        fadeOut(animationSpec = tween(durationMillis = 180))
+                },
+                predictivePopTransitionSpec = {
+                    fadeIn(animationSpec = tween(durationMillis = 180)) togetherWith
+                        fadeOut(animationSpec = tween(durationMillis = 180))
+                },
                 entryProvider = entryProvider {
-                    entry<PacksHome> { PacksRoute(navigator) }
+                    entry<PacksHome> { PacksRoute() }
                     entry<PullsTab> { PullsRoute() }
                     entry<ShowroomTab> { ShowroomRoute() }
                 },

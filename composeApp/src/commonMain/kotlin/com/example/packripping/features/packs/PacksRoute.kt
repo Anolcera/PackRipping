@@ -12,12 +12,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.packripping.domain.models.Pack
 import com.example.packripping.features.pack_details.PackDetailsRoute
 import com.example.packripping.features.pull_reveal.PullRevealRoute
-import com.example.packripping.navigation.AppNavigator
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PacksRoute(
-    @Suppress("UNUSED_PARAMETER") navigator: AppNavigator,
     viewModel: PacksViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()

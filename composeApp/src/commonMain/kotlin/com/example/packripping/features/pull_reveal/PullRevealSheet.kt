@@ -279,27 +279,46 @@ private val sampleCard = Card(
     gradingCompany = "PSA",
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
+// Preview the inner content directly. ModalBottomSheet uses platform-window
+// machinery that does not render reliably inside @Preview, so we wrap the
+// reveal content in a Surface that mirrors the sheet's visual context
+// (rounded corners + theme surface color) for a faithful preview.
 @Composable
-private fun PullRevealSheetLoadingPreview() = PackRippingTheme {
-    PullRevealSheet(state = RevealState.Loading, onEvent = {}, onDismissRequest = {})
+private fun RevealPreviewSurface(content: @Composable () -> Unit) {
+    androidx.compose.material3.Surface(
+        modifier = androidx.compose.ui.Modifier
+            .fillMaxWidth()
+            .height(560.dp),
+        color = androidx.compose.material3.MaterialTheme.colorScheme.surface,
+    ) { content() }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview(showBackground = true)
 @Composable
-private fun PullRevealSheetRevealedPreview() = PackRippingTheme {
-    PullRevealSheet(state = RevealState.Revealed(sampleCard), onEvent = {}, onDismissRequest = {})
+private fun MysteryCardPreview() = PackRippingTheme {
+    RevealPreviewSurface { MysteryCardContent() }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview(showBackground = true)
 @Composable
-private fun PullRevealSheetFailedPreview() = PackRippingTheme {
-    PullRevealSheet(
-        state = RevealState.Failed("Couldn't open the pack. Please try again."),
-        onEvent = {},
-        onDismissRequest = {},
-    )
+private fun RevealedCardPreview() = PackRippingTheme {
+    RevealPreviewSurface {
+        RevealedCardContent(card = sampleCard, isProcessing = false, onSell = {}, onStore = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RevealedCardProcessingPreview() = PackRippingTheme {
+    RevealPreviewSurface {
+        RevealedCardContent(card = sampleCard, isProcessing = true, onSell = {}, onStore = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FailedPreview() = PackRippingTheme {
+    RevealPreviewSurface {
+        FailedContent(message = "Couldn't open the pack. Please try again.", onRetry = {})
+    }
 }

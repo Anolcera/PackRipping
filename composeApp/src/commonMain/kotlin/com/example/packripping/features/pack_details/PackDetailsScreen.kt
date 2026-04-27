@@ -154,19 +154,19 @@ private val samplePack = Pack(
     recentPulls = sampleRecentPulls,
 )
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun PackDetailsSheetLoadedPreview() = PackRippingTheme {
     PackDetailsSheetContent(state = PackDetailsUiState(isLoading = false, pack = samplePack), onEvent = {})
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun PackDetailsSheetLoadingPreview() = PackRippingTheme {
     PackDetailsSheetContent(state = PackDetailsUiState(isLoading = true), onEvent = {})
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun PackDetailsSheetErrorPreview() = PackRippingTheme {
     PackDetailsSheetContent(

@@ -1,5 +1,8 @@
 package com.example.packripping.domain.models
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class Pack(
     val id: Int,
     val name: String,
